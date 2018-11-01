@@ -17,7 +17,7 @@ $VBRJobs = (Get-VBRJob).where({$_.JobType -eq "Backup" -and $_.Name -like "*Loca
 ## List Backup Jobs that match the filter
 $VBRJobs | Select Name, JobType, SourceType | ft
 
-$VBRJobToLocationA = $VBRJobs.where({$_.Name -like "*LocationA*"})
+$VBRJobToLocationA = Get-VBRJob -Name "Backup to LocationA"
 ## list Objects in Job
 $VBRJobToLocationA.GetObjectsInJob().GetObject() | Select ViType, Name, ObjectId | ft
 #endregion
@@ -27,6 +27,20 @@ $VBRJobToLocationA.GetObjectsInJob().GetObject() | Select ViType, Name, ObjectId
 (Find-VBRViEntity -Tags).where({$_.Type -eq "Tag"}) | Select Path, Reference | ft -AutoSize
 ## vSphere Tag
 Get-Tag | Select Category, Name, Id | ft -AutoSize
+#endregion
+
+#region: Example - Add and Remove tag from Job
+$ExampleTag = (Find-VBRViEntity -Tags).where({$_.Type -eq "Tag" -and $_.Name -eq "Protected"})
+
+## Add tag
+Add-VBRViJobObject -Job $VBRJobToLocationA -Entities $ExampleTag
+
+$VBRJobToLocationA | Get-VBRJobObject | select Type, Location, Name
+
+## Remove tag
+$VBRJobToLocationA | Get-VBRJobObject -Name "Protected"  | Remove-VBRJobObject -Completely:$true
+
+$VBRJobToLocationA | Get-VBRJobObject | select Type, Location, Name
 #endregion
 
 #region: Get VMs per Location by Tag
