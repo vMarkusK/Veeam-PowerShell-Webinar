@@ -19,7 +19,14 @@ $ExampleJobOptions | ConvertTo-Json
 
 #region: Basic - Set Job Options
 $BackupJob = Get-VBRJob -Name "Backup Job 2"
+
+## All Options
 Set-VBRJobOptions -Job $BackupJob -Options $ExampleJobOptions
+
+## Modified Options
+$BackupJobOptions = $BackupJob.GetOptions()
+$BackupJobOptions.BackupStorageOptions.EnableDeletedVmDataRetention = $True
+Set-VBRJobOptions -Job $BackupJob -Options $BackupJobOptions
 #endregion
 
 
