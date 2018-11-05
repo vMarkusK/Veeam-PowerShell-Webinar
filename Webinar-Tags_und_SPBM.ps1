@@ -69,6 +69,14 @@ Get-VM | Get-TagAssignment | Remove-TagAssignment -Confirm:$false
 
 #region: Tag Windows VMs
 $OsTagCategory = Get-TagCategory -Name "OS-Type"
+
+## Get Windows tag
+Get-Tag -Category $OsTagCategory -Name "Windows"
+
+## Report all VM OSes 
+Get-VM | Select-Object Name, GuestID, @{name='DetectedGuestID';expression= {$_.ExtensionData.Guest.GuestId}} | Format-Table -AutoSize
+
+## Assign tag
 foreach ($VM in Get-VM){
     if ($VM.GuestId -match "Windows"){
         $VM | New-TagAssignment -Tag $(Get-Tag -Category $OsTagCategory -Name "Windows") | out-null
@@ -76,7 +84,7 @@ foreach ($VM in Get-VM){
         }
         elseif ($VM.GuestId -match "Windows") {
             $VM | New-TagAssignment -Tag $(Get-Tag -Category $OsTagCategory -Name "Windows") | out-null
-        Write-Host "'$($VM.Name)': Windows identified." -ForegroundColor Green
+            Write-Host "'$($VM.Name)': Windows identified." -ForegroundColor Green
             }
             else {
                 Write-Host "'$($VM.Name)' has unknown Guest ID: '$($VM.GuestID) and Detected OS: '$($VM.ExtensionData.Guest.GuestId)' " -ForegroundColor Yellow
