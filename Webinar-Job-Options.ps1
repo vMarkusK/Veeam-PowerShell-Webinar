@@ -28,6 +28,3 @@ $BackupJobOptions = $BackupJob.GetOptions()
 $BackupJobOptions.BackupStorageOptions.EnableDeletedVmDataRetention = $True
 Set-VBRJobOptions -Job $BackupJob -Options $BackupJobOptions
 #endregion
-
-
-

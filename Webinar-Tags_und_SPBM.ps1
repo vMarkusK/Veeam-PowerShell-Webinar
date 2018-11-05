@@ -32,12 +32,12 @@ Get-Tag | Select Category, Name, Id | ft -AutoSize
 #region: Example - Add and Remove tag from Job
 $ExampleTag = (Find-VBRViEntity -Tags).where({$_.Type -eq "Tag" -and $_.Name -eq "Protected"})
 
-## Add tag
+## Add tag to Job
 Add-VBRViJobObject -Job $VBRJobToLocationA -Entities $ExampleTag
 
 $VBRJobToLocationA | Get-VBRJobObject | select Type, Location, Name
 
-## Remove tag
+## Remove tag from Job
 $VBRJobToLocationA | Get-VBRJobObject -Name "Protected"  | Remove-VBRJobObject -Completely:$true
 
 $VBRJobToLocationA | Get-VBRJobObject | select Type, Location, Name
@@ -64,8 +64,24 @@ $VMsLocaltionA | Get-TagAssignment
 #endregion
 
 #region: Remove Tag Tag Assignment
-$VMsLocaltionB | Get-TagAssignment | Remove-TagAssignment -Confirm:$false
-$VMsLocaltionA | Get-TagAssignment | Remove-TagAssignment -Confirm:$false
+Get-VM | Get-TagAssignment | Remove-TagAssignment -Confirm:$false
+#endregion
+
+#region: Tag Windows VMs
+$OsTagCategory = Get-TagCategory -Name "OS-Type"
+foreach ($VM in Get-VM){
+    if ($VM.GuestId -match "Windows"){
+        $VM | New-TagAssignment -Tag $(Get-Tag -Category $OsTagCategory -Name "Windows") | out-null
+        Write-Host "'$($VM.Name)': Windows identified - Guest ID: '$($VM.GuestID) / Detected OS: '$($VM.ExtensionData.Guest.GuestId)'." -ForegroundColor Green
+        }
+        elseif ($VM.GuestId -match "Windows") {
+            $VM | New-TagAssignment -Tag $(Get-Tag -Category $OsTagCategory -Name "Windows") | out-null
+        Write-Host "'$($VM.Name)': Windows identified." -ForegroundColor Green
+            }
+            else {
+                Write-Host "'$($VM.Name)' has unknown Guest ID: '$($VM.GuestID) and Detected OS: '$($VM.ExtensionData.Guest.GuestId)' " -ForegroundColor Yellow
+                }      
+    }
 #endregion
 
 #region: Tag VMs by SPBM
