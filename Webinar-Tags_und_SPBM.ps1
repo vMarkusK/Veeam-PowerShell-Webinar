@@ -38,7 +38,7 @@ Add-VBRViJobObject -Job $VBRJobToLocationA -Entities $ExampleTag
 $VBRJobToLocationA | Get-VBRJobObject | select Type, Location, Name
 
 ## Remove tag from Job
-$VBRJobToLocationA | Get-VBRJobObject -Name "Protected"  | Remove-VBRJobObject -Completely:$true
+$VBRJobToLocationA | Get-VBRJobObject -Name "Protected" | Remove-VBRJobObject -Completely:$true
 
 $VBRJobToLocationA | Get-VBRJobObject | select Type, Location, Name
 #endregion
@@ -82,7 +82,7 @@ foreach ($VM in Get-VM){
         $VM | New-TagAssignment -Tag $(Get-Tag -Category $OsTagCategory -Name "Windows") | out-null
         Write-Host "'$($VM.Name)': Windows identified - Guest ID: '$($VM.GuestID) / Detected OS: '$($VM.ExtensionData.Guest.GuestId)'." -ForegroundColor Green
         }
-        elseif ($VM.GuestId -match "Windows") {
+        elseif ($VM.ExtensionData.Guest.GuestId -match "Windows") {
             $VM | New-TagAssignment -Tag $(Get-Tag -Category $OsTagCategory -Name "Windows") | out-null
             Write-Host "'$($VM.Name)': Windows identified." -ForegroundColor Green
             }
@@ -93,5 +93,16 @@ foreach ($VM in Get-VM){
 #endregion
 
 #region: Tag VMs by SPBM
+## Get Datstores
+Get-SpbmStoragePolicy -Name "NetApp-LocationB" | Get-SpbmCompatibleStorage
+##  Get VMs
+Get-SpbmStoragePolicy -Name "NetApp-LocationB" | Get-VM
+
+## Set Tag
 Get-SpbmStoragePolicy -Name "NetApp-LocationB" | Get-VM | New-TagAssignment -Tag $(Get-Tag -Category $DestinationnTagCategory -Name "LocationA")
 #endregion
+
+#region: Remove Tag Tag Assignment
+Get-VM | Get-TagAssignment | Remove-TagAssignment -Confirm:$false
+#endregion
+

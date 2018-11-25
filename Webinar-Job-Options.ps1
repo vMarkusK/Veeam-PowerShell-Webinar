@@ -5,20 +5,21 @@ Connect-VBRServer -Server "192.168.3.100" -Credential $VeeamCred
 Find-VBRViEntity
 #endregion
 
-#region: My VeeamJobConfig Module
-Remove-Module VeeamJobConfig -ErrorAction SilentlyContinue
-Import-Module "C:\Users\Administrator\Documents\PowerShell\VeeamJobConfig\VeeamJobConfig.psd1"
-#endregion
-
 #region: Get Job Options
 $ExampleJob = Get-VBRJob -Name "Backup Job 1"
 $ExampleJobOptions = $ExampleJob.GetOptions()
 
-##Output Job Options as JSON
+$ExampleJobOptions
+
+## Output single Backup Storage Options
+$ExampleJobOptions.BackupStorageOptions
+
+## Output Job Options as JSON
 $JsonObject = $ExampleJobOptions | ConvertTo-Json
 $Object = $JsonObject | ConvertFrom-Json
 $Object.PSObject.Properties.Remove('Options')
 $Object | ConvertTo-Json | Out-File "C:\temp\ExampleJobOptions.json"
+Start-Process "C:\temp\ExampleJobOptions.json"
 #endregion
 
 #region: Basic - Set Job Options
@@ -27,10 +28,16 @@ $BackupJob = Get-VBRJob -Name "Backup Job 2"
 ## All Options
 Set-VBRJobOptions -Job $BackupJob -Options $ExampleJobOptions
 
-## Modified Options
+## Modify Options
 $BackupJobOptions = $BackupJob.GetOptions()
 $BackupJobOptions.BackupStorageOptions.EnableDeletedVmDataRetention = $True
 Set-VBRJobOptions -Job $BackupJob -Options $BackupJobOptions
+#endregion
+
+#region: My VeeamJobConfig Module
+Remove-Module VeeamJobConfig -ErrorAction SilentlyContinue
+Import-Module "C:\Users\Administrator\Documents\PowerShell\VeeamJobConfig\VeeamJobConfig.psd1"
+Get-Command -Module VeeamJobConfig
 #endregion
 
 #region: Working with Module
