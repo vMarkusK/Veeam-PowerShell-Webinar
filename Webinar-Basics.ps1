@@ -12,6 +12,8 @@ Start-Process "https://helpcenter.veeam.com/docs/backup/powershell/getting_start
 $VeeamCred = Get-Credential -Message "Veeam Credential"
 Connect-VBRServer -Server "192.168.3.100" -Credential $VeeamCred
 
+Get-VBRServerSession
+
 (Get-VBRServer).where({$_.type -eq "Local"})
 
 ### List all Entities
@@ -19,8 +21,8 @@ Find-VBRViEntity
 #endregion
 
 #region: Useful Cmdlets
-## List all Backup Jobs
-Get-VBRJob | Select-Object Name, JObType, SourceType | Format-Table -AutoSize
+## List all Jobs
+Get-VBRJob | Select-Object Name, JobType, SourceType | Format-Table -AutoSize
 
 ## Get Members of a Backup Job
 Get-VBRJobObject -Job "Backup PhotonOS" | Format-Table -AutoSize
@@ -31,6 +33,9 @@ $Job.GetObjectsInJob() | Format-Table -AutoSize
 
 ## Get Last Backup Session of a Job
 Get-VBRSession -Job $Job -Last
+
+### Extract Log
+(Get-VBRSession -Job $Job -Last).Log.Title
 
 ## Get All Backup Repositories
 Get-VBRBackupRepository  | Select-Object Name, Path, Type | Format-Table -AutoSize
